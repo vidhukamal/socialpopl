@@ -1,8 +1,12 @@
 var geocoder;
 var map;
-var contentString = '<div id="population">'+ '<ul>'+ '<li>Facebook</li>'+'</ul>'+ '</div>' ;
+var contentString = '<div id="population">'+ '<ul>'+ '<li id="census">Population: </li>'+'</ul>'+ '</div>' ;
 var infowindow = new google.maps.InfoWindow({
-      content: contentString
+	content: contentString
+});
+
+$(document).ready(function(){
+	
 });
   
 function initialize() {
@@ -27,8 +31,32 @@ function codeAddress() {
 				title: 'Population'
 			});
 			
+			alert("Click on the red marker to see population in " + address + "!");
+			
 	        google.maps.event.addListener(marker, 'click', function() {
-	        	infowindow.open(map,marker);
+	        	//alert($("#address").val());
+	        	
+	        	//Getting population from Census API
+	        	
+	        	$.ajax({
+	        		type: "GET",
+	        		url: "http://api.census.gov/data/2010/sf1?key=f107333cc9985e7aa64df5d552c19d6bf50ef0c3&get=P0010001,NAME&for=state:06",
+	        		dataType:"json",
+	        		success: function(data,textStatus){
+	        			
+	        			var population = numeral(data[1][0]).format('0,0');
+	        			var state = data[1][1];
+	        			contentString = '<div id="population">'+ '<ul>'+ '<li id="census">Population: </li>'+population+'</ul>'+ '</div>';	        			
+	        			
+	        			infowindow.content = contentString;	        			
+	        			//show marker
+	        			infowindow.open(map,marker);	        				        			
+	        		},
+	        		error: function(XMLHttpRequest, errorString, exceptionThrown){
+	        			alert("error");		
+	        		}
+	        	});
+	        	
 			});
 		}
 		else {
